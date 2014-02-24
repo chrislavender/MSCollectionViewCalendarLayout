@@ -306,14 +306,15 @@ NSUInteger const MSCollectionMinBackgroundZ = 0.0;
     }
 
     // Day Column Header
-    CGFloat dayColumnHeaderMinY = fmaxf(self.collectionView.contentOffset.y, 0.0);
+    CGFloat topOffset = [self topLayoutGuideLength];
+    CGFloat dayColumnHeaderMinY = fmaxf(self.collectionView.contentOffset.y, 0.0) + topOffset;
     BOOL dayColumnHeaderFloating = ((dayColumnHeaderMinY != 0) || self.displayHeaderBackgroundAtOrigin);
     
     // Day Column Header Background
     NSIndexPath *dayColumnHeaderBackgroundIndexPath = [NSIndexPath indexPathForRow:0 inSection:0];
     UICollectionViewLayoutAttributes *dayColumnHeaderBackgroundAttributes = [self layoutAttributesForDecorationViewAtIndexPath:dayColumnHeaderBackgroundIndexPath ofKind:MSCollectionElementKindDayColumnHeaderBackground withItemCache:self.dayColumnHeaderBackgroundAttributes];
     // Frame
-    CGFloat dayColumnHeaderBackgroundHeight = (self.dayColumnHeaderHeight + ((self.collectionView.contentOffset.y < 0.0) ? fabsf(self.collectionView.contentOffset.y) : 0.0));
+    CGFloat dayColumnHeaderBackgroundHeight = (self.dayColumnHeaderHeight + ((self.collectionView.contentOffset.y < 0.0) ? fabsf(self.collectionView.contentOffset.y) : 0.0) + topOffset);
     dayColumnHeaderBackgroundAttributes.frame = (CGRect){self.collectionView.contentOffset, {self.collectionView.frame.size.width, dayColumnHeaderBackgroundHeight}};
     // Floating
     dayColumnHeaderBackgroundAttributes.hidden = !dayColumnHeaderFloating;
@@ -431,10 +432,12 @@ NSUInteger const MSCollectionMinBackgroundZ = 0.0;
         CGFloat calendarGridMinY = (columnMinY + self.dayColumnHeaderHeight + self.contentMargin.top);
         
         // Day Column Header
-        CGFloat dayColumnHeaderMinY = fminf(fmaxf(self.collectionView.contentOffset.y, columnMinY), (nextColumnMinY - self.dayColumnHeaderHeight));
+        CGFloat topOffset = [self topLayoutGuideLength];
+        CGFloat dayColumnHeaderMinY = fminf(fmaxf(self.collectionView.contentOffset.y, columnMinY), (nextColumnMinY - self.dayColumnHeaderHeight)) + topOffset;
         BOOL dayColumnHeaderFloating = ((dayColumnHeaderMinY > columnMinY) || self.displayHeaderBackgroundAtOrigin);
         NSIndexPath *dayColumnHeaderIndexPath = [NSIndexPath indexPathForRow:0 inSection:section];
         UICollectionViewLayoutAttributes *dayColumnHeaderAttributes = [self layoutAttributesForSupplementaryViewAtIndexPath:dayColumnHeaderIndexPath ofKind:MSCollectionElementKindDayColumnHeader withItemCache:self.dayColumnHeaderAttributes];
+        
         // Frame
         dayColumnHeaderAttributes.frame = CGRectMake(0.0, dayColumnHeaderMinY, self.collectionViewContentSize.width, self.dayColumnHeaderHeight);
         dayColumnHeaderAttributes.zIndex = [self zIndexForElementKind:MSCollectionElementKindDayColumnHeader floating:dayColumnHeaderFloating];
@@ -1005,6 +1008,16 @@ NSUInteger const MSCollectionMinBackgroundZ = 0.0;
 - (CGFloat)minuteHeight
 {
     return (self.hourHeight / 60.0);
+}
+
+- (CGFloat)topLayoutGuideLength
+{
+    if ([self.collectionView.dataSource isKindOfClass:[UIViewController class]] && [self.collectionView.dataSource respondsToSelector:@selector(topLayoutGuide)]) {
+        UIViewController *collectionViewParentViewController = (UIViewController *)self.collectionView.dataSource;
+        return collectionViewParentViewController.topLayoutGuide.length;
+    }
+    
+    return 0.0f;
 }
 
 #pragma mark Z Index

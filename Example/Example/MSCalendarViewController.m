@@ -67,6 +67,8 @@ NSString * const MSTimeRowHeaderReuseIdentifier = @"MSTimeRowHeaderReuseIdentifi
     self.fetchedResultsController.delegate = self;
     [self.fetchedResultsController performFetch:nil];
     
+    self.navigationController.navigationBarHidden = NO;
+    
     [self loadData];
 }
 

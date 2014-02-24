@@ -66,8 +66,9 @@
     
     MSCalendarViewController *calendarViewController = [[MSCalendarViewController alloc] init];
     
+    UINavigationController *navcon = [[UINavigationController alloc]initWithRootViewController:calendarViewController];
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
-    self.window.rootViewController = calendarViewController;
+    self.window.rootViewController = navcon;
     self.window.backgroundColor = [UIColor whiteColor];
     [self.window makeKeyAndVisible];
     return YES;
